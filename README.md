@@ -1,7 +1,9 @@
 <p align="center">
   <a href="https://www.marketer-ux.com">
-    <img src="assets/marketer-ux-logo.svg#gh-light-mode-only" alt="marketer UX" width="220">
-    <img src="assets/marketer-ux-logo-white.svg#gh-dark-mode-only" alt="marketer UX" width="220">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="assets/marketer-ux-logo-white.svg">
+      <img src="assets/marketer-ux-logo.svg" alt="marketer UX" width="220">
+    </picture>
   </a>
 </p>
 
