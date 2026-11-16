@@ -1,0 +1,23 @@
+{
+  "env": {
+    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1"
+  },
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [{ "type": "command", "command": "~/.claude/hooks/tab-status.sh idle" }] },
+      { "hooks": [{ "type": "command", "command": "python3 ~/.claude/hooks/vscode-sessions.py" }] }
+    ],
+    "UserPromptSubmit": [
+      { "hooks": [{ "type": "command", "command": "~/.claude/hooks/tab-status.sh running" }] }
+    ],
+    "Notification": [
+      { "hooks": [{ "type": "command", "command": "~/.claude/hooks/tab-status.sh waiting" }] }
+    ],
+    "Stop": [
+      { "hooks": [{ "type": "command", "command": "~/.claude/hooks/tab-status.sh done" }] }
+    ],
+    "SessionEnd": [
+      { "hooks": [{ "type": "command", "command": "python3 ~/.claude/hooks/vscode-sessions.py" }] }
+    ]
+  }
+}

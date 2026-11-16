@@ -1,0 +1,40 @@
+{
+  "name": "claude-terminal-restore",
+  "displayName": "Claude Terminal Restore",
+  "description": "Stellt beim Start von VS Code die Terminals mit Claude-Code-Sitzungen wieder her.",
+  "version": "0.3.0",
+  "publisher": "local",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.140.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "claudeTerminalRestore.restore",
+        "title": "Claude: Sitzungen jetzt wiederherstellen"
+      },
+      {
+        "command": "claudeTerminalRestore.sync",
+        "title": "Claude: Terminal-Namen jetzt speichern"
+      },
+      {
+        "command": "claudeTerminalRestore.rename",
+        "title": "Claude: Terminal benennen"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marketer-ux-team/claude-vscode-recovery-terminal-activity"
+  },
+  "homepage": "https://github.com/marketer-ux-team/claude-vscode-recovery-terminal-activity#readme"
+}
