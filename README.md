@@ -12,16 +12,16 @@
 Zwei Ergänzungen für Claude Code in VS Code auf macOS und Linux:
 
 1. **Recovery:** Nach dem Schließen und Neustart von VS Code kommen alle Terminals zurück, in denen eine Claude-Code-Sitzung lief. Gleicher Ordner, gleiche Reihenfolge, gleicher Name, und in jedem startet automatisch `claude --resume <Session-ID>`.
-2. **Terminal Activity:** Jeder Terminal-Tab zeigt den Zustand der Claude-Sitzung im Titel, mit Glocke, wenn Claude etwas von dir braucht.
+2. **Terminal Activity:** Eine eigene Liste „Claude Sitzungen“ in der Seitenleiste zeigt für jedes Terminal mit Claude den Zustand. Die Statusleiste zählt mit, und ein Zähler am Symbol der Seitenleiste zeigt, wie viele Sitzungen auf dich warten. Ein Klick öffnet das Terminal.
 
-| Zustand | Tab-Titel | Glocke |
+| Zustand | Liste und Statusleiste | Tab-Titel (zusätzlich, siehe Einschränkungen) |
 |---|---|---|
-| Sitzung gestartet | ⚪ bereit · Name | – |
-| Claude arbeitet | 🔵 läuft · Name | – |
-| Claude braucht Eingabe oder Freigabe | 🟡 wartet auf dich · Name | ja |
-| Durchlauf fertig | 🟢 fertig · Name | ja |
+| Sitzung gestartet | ○ bereit | ⚪ bereit · Name |
+| Claude arbeitet | ⟳ läuft (blau) | 🔵 läuft · Name |
+| Claude braucht Eingabe oder Freigabe | 🔔 wartet auf dich (gelb), Hinweis in der Statusleiste | 🟡 wartet auf dich · Name, mit Glocke |
+| Durchlauf fertig | ✓ fertig (grün) | 🟢 fertig · Name, mit Glocke |
 
-English summary: restores every VS Code terminal that ran a Claude Code session after a full restart (same folder, order and name, with `claude --resume`), and shows the session state in the terminal tab title with a bell when Claude is waiting for you. German instructions below.
+English summary: restores every VS Code terminal that ran a Claude Code session after a full restart (same folder, order and name, with `claude --resume`), and shows each session's state (ready, running, waiting for you, done) in a sidebar list and the status bar. German instructions below.
 
 Ein Werkzeug von [marketer UX](https://www.marketer-ux.com), entstanden im eigenen Arbeitsalltag mit zwanzig und mehr parallelen Claude-Sitzungen. MIT-Lizenz.
 
@@ -78,6 +78,8 @@ Danach VS Code komplett beenden und neu starten.
 
 ## Benutzung
 
+**Zustand sehen:** Symbol „Claude Sitzungen“ in der Aktivitätsleiste links. Die Liste steht in Tab-Reihenfolge, mit Zustand und Zeit seit dem letzten Wechsel, Klick öffnet das Terminal. In der Statusleiste unten links steht zum Beispiel `Claude ⟳ 3  🔔 1  ✓ 2`; ein Klick darauf öffnet eine Auswahl, wartende Sitzungen stehen oben. Springt eine Sitzung auf „wartet“, erscheint kurz ein Hinweis in der Statusleiste.
+
 **Terminal benennen:** `Cmd+Shift+P` → „Claude: Terminal benennen“. Der Name wird gespeichert und sofort im Titel gezeigt, zum Beispiel „🔵 läuft · Kundenprojekt Relaunch“. Ohne eigenen Namen steht der automatische Sitzungsname von Claude oder der Ordnername im Titel.
 
 Das normale Umbenennen von VS Code (Rechtsklick → Umbenennen) bitte nicht benutzen. VS Code pinnt dann den Namen fest und ignoriert die Titel-Sequenzen; der Zustand wird in diesem Tab nicht mehr angezeigt.
@@ -108,6 +110,8 @@ Zwei Stolpersteine, die der Hook löst:
 
 - **Hooks haben kein Controlling-Terminal.** Claude Code startet Hooks abgekoppelt, `/dev/tty` liefert „Device not configured“. Der Hook läuft deshalb die Prozesskette hoch (Hook → `claude` → Shell), liest mit `ps -o tty=` das Terminal-Gerät der Shell (etwa `/dev/ttys018`) und schreibt direkt dorthin.
 - **Fest vergebene Tab-Namen blockieren Sequenzen.** Ein Name, der über die VS-Code-API oder das Umbenennen gesetzt wurde, hat Vorrang vor `${sequence}`. Darum erzeugt die Erweiterung Terminals ohne festen Namen, und das Benennen läuft über die eigene Liste plus Titel-Sequenz.
+
+Zusätzlich schreibt der Hook den Zustand je Sitzung nach `~/.claude/tab-status/<session-id>`. Die Erweiterung beobachtet diesen Ordner (`fs.watch`, dazu alle 15 Sekunden ein Abgleich), ordnet jede Datei über die Session-ID einem Terminal zu und baut daraus Liste, Statusleiste und Zähler. Dieser Weg hängt nicht an Tab-Titeln und funktioniert deshalb immer.
 
 Der Name im Titel kommt aus `~/.claude/vscode-sessions.json` (Eintrag mit passender Session-ID), sonst aus der Umgebungsvariable `CLAUDE_TERM_NAME`, sonst ist es der Ordnername. Den letzten Zustand merkt sich der Hook je Sitzung in `~/.claude/tab-status/<session-id>`, damit die Erweiterung beim Benennen den richtigen Zustand mitschreiben kann.
 
@@ -148,6 +152,8 @@ Alle 5 Sekunden gleicht die Erweiterung Tab-Namen und Reihenfolge ab: Über `ter
 Zur Laufzeit entstehen `~/.claude/vscode-sessions.json` (Liste), `~/.claude/vscode-sessions.json.lock` (Sperre) und `~/.claude/tab-status/<session-id>` (letzter Zustand).
 
 ## Einschränkungen
+
+- **Tab-Titel sind nur ein Zusatz.** VS Code übernimmt bei einem Terminal, in dem Claude läuft, nach dem ersten Titel keine weiteren Titel-Sequenzen mehr (geprüft mit VS Code 1.140 und Claude Code 2.1.325, auch mit OSC 2 und ST-Abschluss). Ein Tab bleibt deshalb oft auf „⚪ bereit“ stehen. Verlässlich ist die Liste „Claude Sitzungen“ mit der Statusleiste.
 
 - Ein einzelnes Terminal mit laufendem Claude über den Mülleimer zu schließen lässt den Eintrag stehen; das Terminal kommt beim nächsten Start zurück. Vorher `/exit`, wenn das nicht gewünscht ist.
 - Sitzungen, die vor der Installation liefen, kennen die Hooks noch nicht. Sie landen erst nach einem Neustart der Sitzung in der Liste. Die Erweiterung trägt sie aber über den 5-Sekunden-Abgleich ein, sobald sie läuft.
